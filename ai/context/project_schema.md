@@ -1,3 +1,6 @@
+Pattern: agents
+
+
 Agent Context Statement: SQL DDL Generator from JSON Schema
 
 Purpose
