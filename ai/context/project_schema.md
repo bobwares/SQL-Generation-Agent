@@ -1,9 +1,9 @@
-Pattern: agents
+Application Implementation Pattern: agents
 
 
-Agent Context Statement: SQL DDL Generator from JSON Schema
+# Agent Context Statement: SQL DDL Generator from JSON Schema
 
-Purpose
+## Purpose
 
 * Generate deterministic, production-ready SQL DDL for a specified SQL dialect from an input JSON Schema that models a data domain.
 
@@ -324,7 +324,7 @@ Security/Compliance
 Operational Notes
 
 * Version the generator and include generator_version in manifest.
-* Include dialect version in manifest for compatibility tracking.
+* Include a dialect version in manifest for compatibility tracking.
 * Support dry-run (emit only diagnostics and a summarized plan).
 
 Acceptance Examples (abbreviated)
@@ -340,4 +340,5 @@ This statement defines the agent’s contract, behavior, and boundaries to ensur
 
 # Inputs
 
-Domain_schema 
+- domain_schema = json schema
+- dialect = = valid(postgresql, mysql, mssql)
