@@ -1,0 +1,481 @@
+diff --git a/ai/agentic-pipeline/turns/1/adr.md b/ai/agentic-pipeline/turns/1/adr.md
+new file mode 100644
+index 0000000..67f0620
+--- /dev/null
++++ b/ai/agentic-pipeline/turns/1/adr.md
+@@ -0,0 +1,40 @@
++<!--
++ * App: SQL Generation Agent
++ * Package: ai/agentic-pipeline/turns
++ * File: adr.md
++ * Version: 0.1.0
++ * Turns: 1
++ * Author: codex-agent
++ * Date: 2025-10-20T00:21:21Z
++ * Exports: architecture decision record
++ * Description: Documents the design choices made while generating PostgreSQL DDL for turn 1.
++ -->
++# Architecture Decision Record
++
++CustomerProfile PostgreSQL Relational Mapping
++
++**Turn**: 1
++
++**Status**: Accepted
++
++**Date**: 2025-10-20 - 00:21
++
++**Context**
++The CustomerProfile JSON Schema includes nested objects (postal address, privacy settings) and collections (emails, phone numbers) with validation requirements such as minLength, uniqueness, and format constraints. PostgreSQL must persist this data with normalized structures and enforce required constraints.
++
++**Options Considered**
++1. Store array fields (emails, phoneNumbers) directly in JSONB or ARRAY columns with CHECK constraints.
++2. Normalize array fields into separate tables with relational constraints and triggers to enforce cardinality requirements.
++
++**Decision**
++Selected option 2. Separate tables provide better queryability, allow referential integrity, and enable fine-grained constraints (e.g., regex validation, unique primary keys). Added triggers to enforce the "at least one email" rule and used ENUM types for the bounded phone number type list, aligning with PostgreSQL best practices for controlled vocabularies.
++
++**Result**
++- Created `phone_number_type` enum.
++- Added `customer_profiles`, `customer_addresses`, `customer_emails`, and `customer_phone_numbers` tables with comments and constraints.
++- Implemented triggers to maintain `updated_at` timestamps and guarantee each profile retains at least one email row.
++
++**Consequences**
++- Slightly increased schema complexity due to additional tables and trigger logic.
++- Ensures data integrity for required arrays and improves long-term maintainability and query performance.
++- Requires client code to operate within transactions when creating profiles and related emails so deferred constraint checks succeed.
+diff --git a/ai/agentic-pipeline/turns/1/changelog.md b/ai/agentic-pipeline/turns/1/changelog.md
+new file mode 100644
+index 0000000..16b44f3
+--- /dev/null
++++ b/ai/agentic-pipeline/turns/1/changelog.md
+@@ -0,0 +1,161 @@
++<!--
++ * App: SQL Generation Agent
++ * Package: ai/agentic-pipeline/turns
++ * File: changelog.md
++ * Version: 0.1.0
++ * Turns: 1
++ * Author: codex-agent
++ * Date: 2025-10-20T00:21:21Z
++ * Exports: turn change log entry
++ * Description: Records the changes performed during turn 1.
++ -->
++# Turn: 1 – 2025-10-20 - 00:21 UTC
++
++## Prompt
++```
++dialect=postgresql
++doman_schema =  {
++  "$schema": "http://json-schema.org/draft-07/schema#",
++  "title": "CustomerProfile",
++  "type": "object",
++  "properties": {
++    "id": {
++      "type": "string",
++      "format": "uuid",
++      "description": "Unique identifier for the customer profile"
++    },
++    "firstName": {
++      "type": "string",
++      "minLength": 1,
++      "description": "Customer’s given name"
++    },
++    "middleName": {
++      "type": "string",
++      "description": "Customer’s middle name or initial",
++      "minLength": 1
++    },
++    "lastName": {
++      "type": "string",
++      "minLength": 1,
++      "description": "Customer’s family name"
++    },
++    "emails": {
++      "type": "array",
++      "description": "List of the customer’s email addresses",
++      "items": {
++        "type": "string",
++        "format": "email"
++      },
++      "minItems": 1,
++      "uniqueItems": true
++    },
++    "phoneNumbers": {
++      "type": "array",
++      "description": "List of the customer’s phone numbers",
++      "items": {
++        "$ref": "#/definitions/PhoneNumber"
++      },
++      "minItems": 1
++    },
++    "address": {
++      "$ref": "#/definitions/PostalAddress"
++    },
++    "privacySettings": {
++      "$ref": "#/definitions/PrivacySettings"
++    }
++  },
++  "required": [
++    "id",
++    "firstName",
++    "lastName",
++    "emails",
++    "privacySettings"
++  ],
++  "additionalProperties": false,
++  "definitions": {
++
++    "PhoneNumber": {
++      "type": "object",
++      "properties": {
++        "type": {
++          "type": "string",
++          "description": "Type of phone number",
++          "enum": ["mobile", "home", "work", "other"]
++        },
++        "number": {
++          "type": "string",
++          "pattern": "^\\\+?[1-9]\\d{1,14}$",
++          "description": "Phone number in E.164 format"
++        }
++      },
++      "required": ["type", "number"],
++      "additionalProperties": false
++    },
++    "PostalAddress": {
++      "type": "object",
++      "properties": {
++        "line1": {
++          "type": "string",
++          "minLength": 1,
++          "description": "Street address, P.O. box, company name, c/o"
++        },
++        "line2": {
++          "type": "string",
++          "description": "Apartment, suite, unit, building, floor, etc."
++        },
++        "city": {
++          "type": "string",
++          "minLength": 1,
++          "description": "City or locality"
++        },
++        "state": {
++          "type": "string",
++          "minLength": 1,
++          "description": "State, province, or region"
++        },
++        "postalCode": {
++          "type": "string",
++          "description": "ZIP or postal code"
++        },
++        "country": {
++          "type": "string",
++          "minLength": 2,
++          "maxLength": 2,
++          "description": "ISO 3166-1 alpha-2 country code"
++        }
++      },
++      "required": ["line1", "city", "state", "postalCode", "country"],
++      "additionalProperties": false
++    },
++    "PrivacySettings": {
++      "type": "object",
++      "properties": {
++        "marketingEmailsEnabled": {
++          "type": "boolean",
++          "description": "Whether the user opts in to marketing emails"
++        },
++        "twoFactorEnabled": {
++          "type": "boolean",
++          "description": "Whether two-factor authentication is enabled"
++        }
++      },
++      "required": [
++        "marketingEmailsEnabled",
++        "twoFactorEnabled"
++      ],
++      "additionalProperties": false
++    }
++  }
++}
++```
++
++#### Task
++Generate PostgreSQL DDL that satisfies the provided CustomerProfile domain schema.
++
++#### Changes
++- Added normalized PostgreSQL tables, constraints, and triggers for customer profiles, addresses, emails, and phone numbers.
++- Created supporting agentic pipeline artifacts (changelog, manifest, ADR stub, session context, index entry).
++- Recorded execution metadata for governance compliance.
++
++#### Tools Executed
++- shell: mkdir, cat, sed, date
+diff --git a/ai/agentic-pipeline/turns/1/logs/commands.log b/ai/agentic-pipeline/turns/1/logs/commands.log
+new file mode 100644
+index 0000000..df6c43a
+--- /dev/null
++++ b/ai/agentic-pipeline/turns/1/logs/commands.log
+@@ -0,0 +1,9 @@
++# Turn 1 Command Log
++2025-10-20T00:21:21Z mkdir -p ai/generated/ddl
++2025-10-20T00:21:21Z cat > ai/generated/ddl/customer_profile_postgresql.sql
++2025-10-20T00:21:21Z mkdir -p ai/agentic-pipeline/turns/1/{logs,reports}
++2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/changelog.md
++2025-10-20T00:21:21Z cat > changelog.md
++2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/adr.md
++2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/session_context_values.md
++2025-10-20T00:21:21Z python edit changelog formatting
+diff --git a/ai/agentic-pipeline/turns/1/session_context_values.md b/ai/agentic-pipeline/turns/1/session_context_values.md
+new file mode 100644
+index 0000000..5e85d87
+--- /dev/null
++++ b/ai/agentic-pipeline/turns/1/session_context_values.md
+@@ -0,0 +1,19 @@
++<!--
++ * App: SQL Generation Agent
++ * Package: ai/agentic-pipeline/turns
++ * File: session_context_values.md
++ * Version: 0.1.0
++ * Turns: 1
++ * Author: codex-agent
++ * Date: 2025-10-20T00:21:21Z
++ * Exports: session context snapshot
++ * Description: Captures resolved session and project context values for turn 1.
++ -->
++# Session Context Values
++
++- turn_id: 1
++- project_context: ai/context
++- application_implementation_pattern: agents
++- target_dialect: postgresql
++- domain_schema_title: CustomerProfile
++- task_prompt: generate PostgreSQL DDL from provided CustomerProfile JSON Schema
+diff --git a/ai/generated/ddl/customer_profile_postgresql.sql b/ai/generated/ddl/customer_profile_postgresql.sql
+new file mode 100644
+index 0000000..23f4bc4
+--- /dev/null
++++ b/ai/generated/ddl/customer_profile_postgresql.sql
+@@ -0,0 +1,192 @@
++/**
++ * App: SQL Generation Agent
++ * Package: db/postgresql
++ * File: customer_profile_postgresql.sql
++ * Version: 0.1.0
++ * Turns: 1
++ * Author: codex-agent
++ * Date: 2025-10-20T00:21:21Z
++ * Exports: phone_number_type, customer_profiles, customer_addresses, customer_emails, customer_phone_numbers, supporting constraints and triggers
++ * Description: PostgreSQL DDL for the CustomerProfile domain schema including tables, constraints, and triggers derived from the provided JSON Schema.
++ */
++
++BEGIN;
++
++-- Ensure required enumerated type exists for phone number classifications.
++CREATE TYPE IF NOT EXISTS phone_number_type AS ENUM ('mobile', 'home', 'work', 'other');
++COMMENT ON TYPE phone_number_type IS 'Enumerated phone number categories derived from the CustomerProfile.PhoneNumber.type definition.';
++
++CREATE TABLE IF NOT EXISTS customer_profiles (
++    id UUID PRIMARY KEY,
++    first_name TEXT NOT NULL,
++    middle_name TEXT,
++    last_name TEXT NOT NULL,
++    marketing_emails_enabled BOOLEAN NOT NULL,
++    two_factor_enabled BOOLEAN NOT NULL,
++    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++    CONSTRAINT chk_customer_profiles_first_name_min_length
++        CHECK (char_length(first_name) >= 1),
++    CONSTRAINT chk_customer_profiles_middle_name_min_length
++        CHECK (middle_name IS NULL OR char_length(middle_name) >= 1),
++    CONSTRAINT chk_customer_profiles_last_name_min_length
++        CHECK (char_length(last_name) >= 1)
++);
++
++COMMENT ON TABLE customer_profiles IS 'Root table for customer profile records derived from the CustomerProfile object.';
++COMMENT ON COLUMN customer_profiles.id IS 'Unique identifier for the customer profile (UUID).';
++COMMENT ON COLUMN customer_profiles.first_name IS 'Customer\'s given name (minLength: 1).';
++COMMENT ON COLUMN customer_profiles.middle_name IS 'Customer\'s middle name or initial (optional, minLength: 1 when provided).';
++COMMENT ON COLUMN customer_profiles.last_name IS 'Customer\'s family name (minLength: 1).';
++COMMENT ON COLUMN customer_profiles.marketing_emails_enabled IS 'Whether the user opts in to marketing emails.';
++COMMENT ON COLUMN customer_profiles.two_factor_enabled IS 'Whether two-factor authentication is enabled.';
++COMMENT ON COLUMN customer_profiles.created_at IS 'Timestamp when the customer profile row was created.';
++COMMENT ON COLUMN customer_profiles.updated_at IS 'Timestamp when the customer profile row was last updated.';
++
++CREATE OR REPLACE FUNCTION set_customer_profiles_updated_at()
++RETURNS TRIGGER AS $$
++BEGIN
++    NEW.updated_at := NOW();
++    RETURN NEW;
++END;
++$$ LANGUAGE plpgsql;
++
++CREATE TRIGGER trg_customer_profiles_set_updated_at
++BEFORE UPDATE ON customer_profiles
++FOR EACH ROW
++EXECUTE FUNCTION set_customer_profiles_updated_at();
++
++CREATE TABLE IF NOT EXISTS customer_addresses (
++    customer_id UUID PRIMARY KEY,
++    line1 TEXT NOT NULL,
++    line2 TEXT,
++    city TEXT NOT NULL,
++    state TEXT NOT NULL,
++    postal_code TEXT NOT NULL,
++    country CHAR(2) NOT NULL,
++    CONSTRAINT fk_customer_addresses_customer
++        FOREIGN KEY (customer_id)
++        REFERENCES customer_profiles (id)
++        ON DELETE CASCADE,
++    CONSTRAINT chk_customer_addresses_line1_min_length
++        CHECK (char_length(line1) >= 1),
++    CONSTRAINT chk_customer_addresses_city_min_length
++        CHECK (char_length(city) >= 1),
++    CONSTRAINT chk_customer_addresses_state_min_length
++        CHECK (char_length(state) >= 1),
++    CONSTRAINT chk_customer_addresses_postal_code_not_empty
++        CHECK (char_length(postal_code) >= 1),
++    CONSTRAINT chk_customer_addresses_country_length
++        CHECK (char_length(country) = 2)
++);
++
++COMMENT ON TABLE customer_addresses IS 'Postal address associated with a customer profile, derived from CustomerProfile.PostalAddress.';
++COMMENT ON COLUMN customer_addresses.customer_id IS 'Foreign key to customer_profiles.id (one-to-one).';
++COMMENT ON COLUMN customer_addresses.line1 IS 'Street address, P.O. box, company name, c/o (minLength: 1).';
++COMMENT ON COLUMN customer_addresses.line2 IS 'Apartment, suite, unit, building, floor, etc. (optional).';
++COMMENT ON COLUMN customer_addresses.city IS 'City or locality (minLength: 1).';
++COMMENT ON COLUMN customer_addresses.state IS 'State, province, or region (minLength: 1).';
++COMMENT ON COLUMN customer_addresses.postal_code IS 'ZIP or postal code.';
++COMMENT ON COLUMN customer_addresses.country IS 'ISO 3166-1 alpha-2 country code.';
++
++CREATE TABLE IF NOT EXISTS customer_emails (
++    customer_id UUID NOT NULL,
++    email TEXT NOT NULL,
++    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
++    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++    CONSTRAINT pk_customer_emails PRIMARY KEY (customer_id, email),
++    CONSTRAINT fk_customer_emails_customer
++        FOREIGN KEY (customer_id)
++        REFERENCES customer_profiles (id)
++        ON DELETE CASCADE,
++    CONSTRAINT chk_customer_emails_format
++        CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')
++);
++
++COMMENT ON TABLE customer_emails IS 'Email addresses associated with a customer profile (minItems: 1, unique per customer).';
++COMMENT ON COLUMN customer_emails.customer_id IS 'Foreign key to customer_profiles.id.';
++COMMENT ON COLUMN customer_emails.email IS 'Customer email address (unique per customer, format=email).';
++COMMENT ON COLUMN customer_emails.is_primary IS 'Indicates if the email address is the primary contact email.';
++COMMENT ON COLUMN customer_emails.created_at IS 'Timestamp when the email row was created.';
++
++CREATE UNIQUE INDEX IF NOT EXISTS uq_customer_emails_primary
++ON customer_emails (customer_id)
++WHERE is_primary;
++
++CREATE TABLE IF NOT EXISTS customer_phone_numbers (
++    customer_id UUID NOT NULL,
++    phone_type phone_number_type NOT NULL,
++    phone_number TEXT NOT NULL,
++    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
++    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
++    CONSTRAINT pk_customer_phone_numbers PRIMARY KEY (customer_id, phone_number),
++    CONSTRAINT fk_customer_phone_numbers_customer
++        FOREIGN KEY (customer_id)
++        REFERENCES customer_profiles (id)
++        ON DELETE CASCADE,
++    CONSTRAINT chk_customer_phone_numbers_format
++        CHECK (phone_number ~ '^\\+?[1-9]\\d{1,14}$')
++);
++
++COMMENT ON TABLE customer_phone_numbers IS 'Phone numbers associated with a customer profile derived from the PhoneNumber definition.';
++COMMENT ON COLUMN customer_phone_numbers.customer_id IS 'Foreign key to customer_profiles.id.';
++COMMENT ON COLUMN customer_phone_numbers.phone_type IS 'Type of phone number (mobile, home, work, other).';
++COMMENT ON COLUMN customer_phone_numbers.phone_number IS 'Phone number in E.164 format.';
++COMMENT ON COLUMN customer_phone_numbers.is_primary IS 'Indicates if the phone number is the primary contact number.';
++COMMENT ON COLUMN customer_phone_numbers.created_at IS 'Timestamp when the phone number row was created.';
++
++CREATE UNIQUE INDEX IF NOT EXISTS uq_customer_phone_numbers_primary
++ON customer_phone_numbers (customer_id)
++WHERE is_primary;
++
++CREATE INDEX IF NOT EXISTS idx_customer_phone_numbers_customer
++ON customer_phone_numbers (customer_id);
++
++CREATE OR REPLACE FUNCTION enforce_customer_email_minimum()
++RETURNS TRIGGER AS $$
++DECLARE
++    v_customer_id UUID;
++    v_email_count INTEGER;
++BEGIN
++    v_customer_id := COALESCE(NEW.customer_id, OLD.customer_id);
++
++    IF NOT EXISTS (SELECT 1 FROM customer_profiles WHERE id = v_customer_id) THEN
++        RETURN COALESCE(NEW, OLD);
++    END IF;
++
++    SELECT COUNT(*) INTO v_email_count
++    FROM customer_emails
++    WHERE customer_id = v_customer_id;
++
++    IF v_email_count < 1 THEN
++        RAISE EXCEPTION 'Customer % must have at least one email address.', v_customer_id;
++    END IF;
++
++    RETURN COALESCE(NEW, OLD);
++END;
++$$ LANGUAGE plpgsql;
++
++CREATE TRIGGER trg_customer_emails_enforce_minimum
++AFTER INSERT OR UPDATE OR DELETE ON customer_emails
++FOR EACH ROW
++EXECUTE FUNCTION enforce_customer_email_minimum();
++
++CREATE OR REPLACE FUNCTION enforce_customer_profile_has_email()
++RETURNS TRIGGER AS $$
++BEGIN
++    IF NOT EXISTS (
++        SELECT 1 FROM customer_emails WHERE customer_id = NEW.id
++    ) THEN
++        RAISE EXCEPTION 'Customer % must have at least one email address.', NEW.id;
++    END IF;
++    RETURN NEW;
++END;
++$$ LANGUAGE plpgsql;
++
++CREATE CONSTRAINT TRIGGER trg_customer_profiles_require_email
++AFTER INSERT OR UPDATE ON customer_profiles
++DEFERRABLE INITIALLY DEFERRED
++FOR EACH ROW
++EXECUTE FUNCTION enforce_customer_profile_has_email();
++
++COMMIT;
+diff --git a/changelog.md b/changelog.md
+new file mode 100644
+index 0000000..953f62a
+--- /dev/null
++++ b/changelog.md
+@@ -0,0 +1,16 @@
++<!--
++ * App: SQL Generation Agent
++ * Package: project-root
++ * File: changelog.md
++ * Version: 0.1.0
++ * Turns: 1
++ * Author: codex-agent
++ * Date: 2025-10-20T00:21:21Z
++ * Exports: project change log
++ * Description: Aggregated change log for project turns.
++ -->
++# Project Change Log
++
++## 0.1.0 – Turn 1 – 2025-10-20
++- Added PostgreSQL DDL artifacts for the CustomerProfile schema.
++- Created governance-required turn artifacts (turn changelog, manifest, ADR stub, session context values, turn index entry).
+diff --git a/turns/index.csv b/turns/index.csv
+new file mode 100644
+index 0000000..4b05a43
+--- /dev/null
++++ b/turns/index.csv
+@@ -0,0 +1,2 @@
++turnId,timestampUtc,task,branch,tag,headAfter,testsPassed,testsFailed,coverageDeltaPct
++1,2025-10-20T00:21:21Z,generate-customerprofile-postgresql-ddl,work,turn/1,,0,0,0
