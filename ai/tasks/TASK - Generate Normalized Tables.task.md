@@ -7,13 +7,13 @@ Convert a JSON schema into normalized DDL SQL statements.
 Output Directory: `/db`
 
 ## Constraints**
-- Use PostgreSQL v16 dialect
+- Use input dialect
 - Normalize to at least 3NF
 - Use singular table names (e.g., customer, order_item)
 - Include indexes for foreign keys and queryable fields
 - Use CREATE TABLE IF NOT EXISTS
 - Follow project naming conventions
-- Replace NN in file path with incremented number. ie db/migrations/01_<domain>_.sql
+- Replace NN in a file path with incremented number. ie db/migrations/01_<domain>_.sql
 
 ## Inputs
 
@@ -41,7 +41,7 @@ Generate a migration in `db/migrations/NN_<schema title>_tables.sql` that:
 ## Acceptance Criteria
 * Expected Outputs were created.
 * Each file contains a metadata header block.
-* Uses `CREATE TABLE IF NOT EXISTS` statements valid for PostgreSQL 16.
+* Uses `CREATE TABLE IF NOT EXISTS` statements valid for select dialect.
 * Implements all keys, constraints, and indexes required by the JSON schema.
 * Naming conventions, timestamp format, and directory layout match project standards.
 * `project_root/db/README.md` gains a short “Domain Migration” section describing how to execute the migration and smoke tests locally.
