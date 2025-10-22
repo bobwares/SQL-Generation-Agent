@@ -1,0 +1,55 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-21T23:58:11Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "gpt-5-codex"
+  },
+  "task": {
+    "name": "execute turn 1",
+    "inputs": [
+      "ai/context/customer.schema.json"
+    ],
+    "parameters": {
+      "database": "mysql"
+    }
+  },
+  "artifacts": {
+    "changelog": "changelog.md",
+    "adr": "adr.md",
+    "diff": null,
+    "logs": [],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      ".gitignore",
+      "AGENTS.md",
+      "ai/context/project_context.md",
+      "ai/agentic-pipeline/turns_index.csv",
+      "ai/agentic-pipeline/turns/1/adr.md",
+      "ai/agentic-pipeline/turns/1/changelog.md",
+      "ai/agentic-pipeline/turns/1/manifest.json",
+      "ai/agentic-pipeline/turns/1/session_context_values.md",
+      "db/README.md",
+      "db/migrations/01_customer_profile_tables.sql",
+      "db/scripts/customer_profile_test_data.sql"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 11,
+    "linesAdded": 570,
+    "linesDeleted": 0,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0.0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}
