@@ -1,0 +1,41 @@
+# App: SQL Generation Agent
+# Package: root
+# File: .gitignore
+# Version: 0.1.0
+# Turns: 1
+# Author: AI Agent
+# Date: 2025-10-21T23:58:11Z
+# Exports: n/a
+# Description: Ignore generated artifacts, caches, and environment-specific files.
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.env
+.venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Databases
+*.sqlite3
+*.db
+
+# Logs and temp
+*.log
+/tmp/
+.DS_Store
+
+# Agent pipeline outputs
+ai/agentic-pipeline/turns/*/logs/
+ai/agentic-pipeline/turns/*/reports/
+
+# Misc
+.idea/
+.vscode/
