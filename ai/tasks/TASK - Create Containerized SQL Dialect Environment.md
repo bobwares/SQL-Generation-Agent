@@ -1,16 +1,20 @@
-# TASK - Create Containerized SQL Dialect Environments
+# TASK — Create Containerized SQL Dialect Environments
+
+## Inputs
+
+- SQL Dialect
+
+
+Use the dialect list defined in the agent context (currently: `postgresql`, `mysql`, `mariadb`, `mssql`, `sqlite`, `duckdb`, `oracle`, `snowflake`, `bigquery`) to validate the input.
+
 
 ## Objective
 
-Provision containerization assets that allow engineers to spin up local development instances for every SQL dialect supported by the SQL DDL generator pattern.
-
-## Supported Dialects
-
-Use the dialect list defined in the agent context (currently: `postgresql`, `mysql`, `mariadb`, `mssql`, `sqlite`, `duckdb`, `oracle`, `snowflake`, `bigquery`). When the agent context adds or removes dialects, this task MUST reflect those changes.
+Provision containerization assets that allow engineers to spin up local development instances for the inputted SQL dialect.
 
 ## Required Outputs
 
-For **each** supported dialect, generate the following assets under `project_root`:
+- generate the following assets under `project_root` for the selected SQL Dialect.
 
 1. **Dockerfile**
     - Place at `project_root/docker/<dialect>/Dockerfile` (create the dialect-specific folder if it does not exist).
@@ -38,6 +42,6 @@ For **each** supported dialect, generate the following assets under `project_roo
 ## Constraints & Notes
 
 - Do **not** generate the Dockerfiles, docker-compose content, or `.env` files within this task description; only define the requirements so future automation can produce them.
-- When a dialect lacks an official Docker image (e.g., Snowflake, BigQuery), document the recommended local development strategy (emulator, mock, or omission) and structure the compose service accordingly (even if disabled by default).
+- When a dialect lacks an official Docker image (e.g., Snowflake, BigQuery), document the recommended local development strategy (emulator, mock, or omission) and structure the composed service accordingly (even if disabled by default).
 - Ensure all new files include metadata headers per governance.
-- Maintain idempotency: re-running this task should regenerate files without manual cleanup.
+- Maintain idempotency: re-running this task should regenerate files without a manual cleanup.
