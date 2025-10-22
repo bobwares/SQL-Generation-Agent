@@ -1,0 +1,11 @@
+# App: SQL Generation Agent
+# Package: ai.agentic-pipeline
+# File: turns_index.csv
+# Version: 0.1.0
+# Turns: 1
+# Author: gpt-5-codex
+# Date: 2025-10-22T20:17:49Z
+# Exports: Turn index records
+# Description: Tracks turn executions and summary metrics.
+turnId,timestampUtc,task,branch,tag,headAfter,testsPassed,testsFailed,coverageDeltaPct
+1,2025-10-22T20:17:49Z,turn-1,work,turn/1,HEAD,0,0,0.0
