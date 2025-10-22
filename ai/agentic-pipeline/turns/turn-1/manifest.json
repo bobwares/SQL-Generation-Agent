@@ -1,0 +1,57 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-22T07:50:41Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "codex@1.0.0"
+  },
+  "task": {
+    "name": "execute turn 1",
+    "inputs": [
+      "CustomerProfile schema",
+      "config: mysql"
+    ],
+    "parameters": {
+      "dialect": "mysql"
+    }
+  },
+  "artifacts": {
+    "changelog": "changelog.md",
+    "adr": "adr.md",
+    "diff": "diff.patch",
+    "logs": [],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      ".gitignore",
+      "db/README.md",
+      "db/migrations/01_customer_profile_tables.sql",
+      "db/scripts/customer_profile_test_data.sql",
+      "ai/agentic-pipeline/turns_index.csv",
+      "ai/agentic-pipeline/turns/turn-1/adr.md",
+      "ai/agentic-pipeline/turns/turn-1/changelog.md",
+      "ai/agentic-pipeline/turns/turn-1/diff.patch",
+      "ai/agentic-pipeline/turns/turn-1/manifest.json",
+      "ai/agentic-pipeline/turns/turn-1/session_context_values.md"
+    ],
+    "modified": [
+      "README.md"
+    ],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 11,
+    "linesAdded": 1049,
+    "linesDeleted": 1,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}

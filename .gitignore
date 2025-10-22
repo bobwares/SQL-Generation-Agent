@@ -1,0 +1,20 @@
+# Generated artifacts and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+.env.local
+.env.development
+.env.production
+.env.test
+.DS_Store
+.idea/
+.vscode/
+*.log
+coverage/
+node_modules/
+logs/
+.tmp/
