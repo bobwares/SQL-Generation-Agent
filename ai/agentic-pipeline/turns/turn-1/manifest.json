@@ -1,0 +1,63 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-22T20:17:49Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "gpt-5-codex"
+  },
+  "task": {
+    "name": "execute-turn-1",
+    "inputs": [
+      "ai/context/customer.schema.json"
+    ],
+    "parameters": {
+      "dialect": "mysql"
+    }
+  },
+  "artifacts": {
+    "changelog": "changelog.md",
+    "adr": "adr.md",
+    "diff": null,
+    "logs": [],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      ".env.example",
+      ".env.mysql",
+      ".gitignore",
+      "AGENTS.md",
+      "Makefile",
+      "ai/agentic-pipeline/turns/turn-1/adr.md",
+      "ai/agentic-pipeline/turns/turn-1/changelog.md",
+      "ai/agentic-pipeline/turns/turn-1/manifest.json",
+      "ai/agentic-pipeline/turns/turn-1/session_context_values.md",
+      "ai/agentic-pipeline/turns/turn-1/telemetry/README.md",
+      "ai/agentic-pipeline/turns_index.csv",
+      "db/README.md",
+      "db/migrations/01_customer_profile_tables.sql",
+      "db/scripts/customer_profile_test_data.sql",
+      "docker-compose.yml",
+      "docker/mysql/Dockerfile",
+      "docker/mysql/init/README.md"
+    ],
+    "modified": [
+      "README.md"
+    ],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 18,
+    "linesAdded": 695,
+    "linesDeleted": 1,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0.0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}
