@@ -1,0 +1,37 @@
+# /**
+# * App: SQL-Generation-Agent
+# * Package: root
+# * File: .gitignore
+# * Version: 0.1.0
+# * Turns: 1
+# * Author: AI Coding Agent
+# * Date: 2025-10-22T01:09:09Z
+# * Exports: N/A
+# * Description: Specifies files and directories for Git to ignore.
+# */
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.venv/
+
+# Node
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and coverage
+*.log
+coverage/
+
+# SQL build artifacts
+db/tmp/
+
+# Misc
+.idea/
+*.swp
