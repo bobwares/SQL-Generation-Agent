@@ -1,0 +1,52 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-22T00:39:54Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "gpt-5-codex"
+  },
+  "task": {
+    "name": "TASK 01 - Initialize Project",
+    "inputs": [
+      "ai/context/project_schema.md"
+    ],
+    "parameters": {
+      "config": {
+        "dialect": "mysql"
+      }
+    }
+  },
+  "artifacts": {
+    "changelog": "changelog.md",
+    "adr": "adr.md",
+    "diff": null,
+    "logs": [],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      ".gitignore",
+      "ai/agentic-pipeline/turns/1/changelog.md",
+      "ai/agentic-pipeline/turns/1/adr.md",
+      "ai/agentic-pipeline/turns/1/manifest.json",
+      "ai/agentic-pipeline/turns/1/session_context_values.md",
+      "ai/agentic-pipeline/turns_index.csv"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 6,
+    "linesAdded": 224,
+    "linesDeleted": 0,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0.0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}
