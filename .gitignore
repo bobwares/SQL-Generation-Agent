@@ -1,0 +1,31 @@
+# Binaries
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.env
+.venv
+venv/
+ENV/
+
+# Node modules
+node_modules/
+
+# IDE artifacts
+.idea/
+.vscode/
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Docker and environment artifacts
+*.log
+.env
+.env.local
+!/.env.example
+!/.env.*
