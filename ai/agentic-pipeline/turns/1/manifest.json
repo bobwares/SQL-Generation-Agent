@@ -1,0 +1,55 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-20T00:21:21Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "codex-agent"
+  },
+  "task": {
+    "name": "generate-customerprofile-postgresql-ddl",
+    "inputs": [
+      "prompt: CustomerProfile JSON Schema"
+    ],
+    "parameters": {
+      "dialect": "postgresql"
+    }
+  },
+  "artifacts": {
+    "changelog": "ai/agentic-pipeline/turns/1/changelog.md",
+    "adr": "ai/agentic-pipeline/turns/1/adr.md",
+    "diff": "ai/agentic-pipeline/turns/1/diff.patch",
+    "logs": [
+      "ai/agentic-pipeline/turns/1/logs/commands.log"
+    ],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      "ai/generated/ddl/customer_profile_postgresql.sql",
+      "ai/agentic-pipeline/turns/1/changelog.md",
+      "ai/agentic-pipeline/turns/1/adr.md",
+      "ai/agentic-pipeline/turns/1/session_context_values.md",
+      "ai/agentic-pipeline/turns/1/logs/commands.log",
+      "ai/agentic-pipeline/turns/1/diff.patch",
+      "ai/agentic-pipeline/turns/1/manifest.json",
+      "changelog.md",
+      "turns/index.csv"
+    ],
+    "modified": [],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 9,
+    "linesAdded": 974,
+    "linesDeleted": 0,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0.0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}

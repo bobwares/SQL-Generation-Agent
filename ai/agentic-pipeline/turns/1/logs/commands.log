@@ -1,0 +1,9 @@
+# Turn 1 Command Log
+2025-10-20T00:21:21Z mkdir -p ai/generated/ddl
+2025-10-20T00:21:21Z cat > ai/generated/ddl/customer_profile_postgresql.sql
+2025-10-20T00:21:21Z mkdir -p ai/agentic-pipeline/turns/1/{logs,reports}
+2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/changelog.md
+2025-10-20T00:21:21Z cat > changelog.md
+2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/adr.md
+2025-10-20T00:21:21Z cat > ai/agentic-pipeline/turns/1/session_context_values.md
+2025-10-20T00:21:21Z python edit changelog formatting
