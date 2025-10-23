@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Simple agent runner for SQL DDL generation."""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Dict, Iterable
+
+
+def snake_case(name: str) -> str:
+    """Convert CamelCase or spaced names into snake_case."""
+    s1 = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+    s2 = re.sub("[^a-zA-Z0-9]+", "_", s1)
+    return s2.strip("_").lower() or "table"
+
+
+def map_json_type(prop: Dict) -> str:
+    """Map a JSON schema property to a SQL column type."""
+    raw_type = prop.get("type")
+
+    if isinstance(raw_type, list):
+        raw_type = [t for t in raw_type if t != "null"]
+        raw_type = raw_type[0] if raw_type else None
+
+    if raw_type in {"array", "object"}:
+        return "JSONB"
+
+    type_map = {
+        "string": "TEXT",
+        "integer": "INTEGER",
+        "number": "DOUBLE PRECISION",
+        "boolean": "BOOLEAN",
+    }
+
+    sql_type = type_map.get(raw_type, "JSONB")
+
+    if raw_type == "string":
+        fmt = prop.get("format")
+        if fmt == "uuid":
+            sql_type = "UUID"
+        elif fmt == "date-time":
+            sql_type = "TIMESTAMP WITH TIME ZONE"
+
+    if raw_type is None and "$ref" in prop:
+        return "JSONB"
+
+    return sql_type
+
+
+def build_columns(schema: Dict) -> Iterable[str]:
+    properties = schema.get("properties", {})
+    required = set(schema.get("required", []))
+
+    for prop_name, definition in properties.items():
+        column_name = snake_case(prop_name)
+        sql_type = map_json_type(definition)
+        pieces = [f"    {column_name} {sql_type}"]
+        if prop_name in required:
+            pieces[-1] += " NOT NULL"
+        description = definition.get("description")
+        if description:
+            pieces[-1] += f" -- {description}"
+        yield pieces[-1]
+
+    if "id" in properties:
+        yield f"    PRIMARY KEY ({snake_case('id')})"
+
+
+def generate_sql(schema_path: Path, dialect: str, out_dir: Path) -> Path:
+    with schema_path.open("r", encoding="utf-8") as f:
+        schema = json.load(f)
+
+    title = schema.get("title") or schema_path.stem
+    table_name = snake_case(title)
+    columns = ",\n".join(build_columns(schema))
+
+    create_stmt = (
+        f"-- Auto-generated from {schema_path.name}\n"
+        f"CREATE TABLE IF NOT EXISTS {table_name} (\n{columns}\n);\n"
+    )
+
+    dialect_dir = out_dir / dialect
+    dialect_dir.mkdir(parents=True, exist_ok=True)
+    output_path = dialect_dir / f"{table_name}.sql"
+    output_path.write_text(create_stmt, encoding="utf-8")
+    return output_path
+
+
+def run_agent(args: argparse.Namespace) -> int:
+    if args.agent_name != "sql-ddl-generator":
+        print(f"Unsupported agent '{args.agent_name}'.", file=sys.stderr)
+        return 1
+
+    schema_path = Path(args.schema_path)
+    if not schema_path.exists():
+        print(f"Schema file '{schema_path}' does not exist.", file=sys.stderr)
+        return 1
+
+    out_dir = Path(args.out_dir)
+    output_file = generate_sql(schema_path, args.dialect, out_dir)
+    print(f"Generated SQL written to {output_file}")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="agent")
+    subparsers = parser.add_subparsers(dest="command")
+
+    run_parser = subparsers.add_parser("run")
+    run_parser.add_argument("agent_name")
+    run_parser.add_argument("--dialect", required=True)
+    run_parser.add_argument("--schema-path", required=True)
+    run_parser.add_argument("--out-dir", required=True)
+    run_parser.set_defaults(func=run_agent)
+
+    return parser
+
+
+def main(argv: Iterable[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if not getattr(args, "command", None):
+        parser.print_help()
+        return 1
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
