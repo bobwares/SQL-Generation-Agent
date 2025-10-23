@@ -1,0 +1,55 @@
+{
+  "turnId": 1,
+  "timestampUtc": "2025-10-23T05:20:20Z",
+  "actor": {
+    "initiator": "user",
+    "agent": "gpt-5-codex"
+  },
+  "task": {
+    "name": "execute-turn-1",
+    "inputs": [
+      "ai/context/customer.schema.json"
+    ],
+    "parameters": {
+      "dialect": "postgresql"
+    }
+  },
+  "artifacts": {
+    "changelog": "changelog.md",
+    "adr": "adr.md",
+    "diff": null,
+    "logs": [],
+    "reports": []
+  },
+  "changes": {
+    "added": [
+      ".gitignore",
+      "db/migrations/01_customer_profile_tables.sql",
+      "db/README.md",
+      "db/scripts/customer_profile_test_data.sql",
+      "docker/postgresql/Dockerfile",
+      "docker-compose.yml",
+      ".env.postgresql",
+      ".env.example",
+      "Makefile"
+    ],
+    "modified": [
+      "README.md"
+    ],
+    "deleted": []
+  },
+  "metrics": {
+    "filesChanged": 15,
+    "linesAdded": 685,
+    "linesDeleted": 1,
+    "testsPassed": 0,
+    "testsFailed": 0,
+    "coverageDeltaPct": 0.0
+  },
+  "validation": {
+    "adrPresent": true,
+    "changelogPresent": true,
+    "lintStatus": "not-run",
+    "testsStatus": "not-run"
+  }
+}

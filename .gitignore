@@ -1,0 +1,37 @@
+# /**
+#  * App: SQL Generation Agent
+#  * Package: root
+#  * File: .gitignore
+#  * Version: 0.1.0
+#  * Turns: 1
+#  * Author: AI Agent
+#  * Date: 2025-10-23T05:20:20Z
+#  * Exports: n/a
+#  * Description: Ignore build artifacts, environment files, and local tooling outputs.
+#  */
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Node
+node_modules/
+
+# Environment
+.env*
+!.env.example
+!.env.postgresql
+
+# Docker artifacts
+docker/data/
+
+# Database dumps
+*.sql.tmp
+*.log
+
+# macOS
+.DS_Store
+
+# Editor
+.idea/
+.vscode/

@@ -1,0 +1,39 @@
+# /**
+#  * App: SQL Generation Agent
+#  * Package: docker
+#  * File: docker-compose.yml
+#  * Version: 0.1.0
+#  * Turns: 1
+#  * Author: AI Agent
+#  * Date: 2025-10-23T05:20:20Z
+#  * Exports: Compose service definitions
+#  * Description: Orchestrates SQL dialect containers for local development.
+#  */
+
+version: '3.9'
+
+services:
+  postgresql-db:
+    profiles: ["postgresql"]
+    build:
+      context: .
+      dockerfile: docker/postgresql/Dockerfile
+    container_name: sql-gen-postgresql
+    env_file:
+      - .env.postgresql
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ./db/scripts:/docker-entrypoint-initdb.d/scripts:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}", "-d", "${POSTGRES_DB:-customer_profile}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
